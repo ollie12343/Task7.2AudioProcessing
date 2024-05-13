@@ -3,6 +3,7 @@ import RPi.GPIO as GPIO
 import time
 
 num_files = 2
+
 # Set up RPi
 PIN = 8
 GPIO.setmode(GPIO.BOARD)
@@ -10,7 +11,7 @@ GPIO.setup(PIN, GPIO.OUT)
 
 recogniser = sr.Recognizer()
 
-for i in range(2):
+for i in range(num_files):
     print(f"file {i + 1}")
     text = None
     while not text:

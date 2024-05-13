@@ -1,7 +1,8 @@
 import speech_recognition as sr
 import RPi.GPIO as GPIO
+import time
 
-
+num_files = 2
 # Set up RPi
 PIN = 8
 GPIO.setmode(GPIO.BOARD)
@@ -9,31 +10,31 @@ GPIO.setup(PIN, GPIO.OUT)
 
 recogniser = sr.Recognizer()
 
-
-def recog():
+for i in range(2):
+    print(f"file {i + 1}")
     text = None
     while not text:
         try:
-            with sr.Microphone() as mic:
-                recogniser.adjust_for_ambient_noise(mic, duration=0.2)
-                audio = recogniser.listen(mic)
+            with sr.AudioFile(f"test{i}.wav") as source:
+                recogniser.adjust_for_ambient_noise(source, duration=0.2)
+                audio = recogniser.record(source)
                 
                 text = recogniser.recognize_google(audio)
-                text = text.lower()                
+                text = text.lower()
 
+                print(f"Recognised: {text}")
+                if text == "light on":
+                    GPIO.output(PIN, GPIO.HIGH)
+                elif text == "light off":
+                    GPIO.output(PIN, GPIO.LOW)
+                elif text == "exit":
+                    pass
+                else:
+                    print(text)
         except KeyboardInterrupt:
-            break
+           break
         except Exception as e:
             print(e)
             recogniser = sr.Recognizer()
             continue
-        
-def main():
-    while True:
-        text = recog()
-        if text == "light on":
-            GPIO.output(PIN, GPIO.HIGH)
-        elif text == "light off":
-            GPIO.output(PIN, GPIO.LOW)
-        elif text == "exit":
-            break
+    time.sleep(2)
